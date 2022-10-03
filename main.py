@@ -75,13 +75,13 @@ class Cathedra:
         if student.name() == "student":
             self._studentList.append(student)
         else:
-            print("Не тот класс")
+            print("РќРµ С‚РѕС‚ РєР»Р°СЃСЃ")
 
     def addTutor(self, tutor):
         if tutor.name() == "tutor":
             self._tutorList.append(tutor)
         else:
-            print("Не тот класс")
+            print("РќРµ С‚РѕС‚ РєР»Р°СЃСЃ")
 
     def getListStudent(self):
         listX = []
@@ -175,7 +175,7 @@ class Cathedra:
 
 
         else:
-            print("Файла не существует или он не является .json")
+            print("Р¤Р°Р№Р»Р° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РѕРЅ РЅРµ СЏРІР»СЏРµС‚СЃСЏ .json")
 
 
     def parseOutJsonTutor(self, pth) -> None:
@@ -190,7 +190,7 @@ class Cathedra:
                     tu.setID(dict[i]['ID'])
                     c.addTutor(tu)
         else:
-            print("Файла не существует или он не является .json")
+            print("Р¤Р°Р№Р»Р° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РѕРЅ РЅРµ СЏРІР»СЏРµС‚СЃСЏ .json")
 
     def parseOutXMLStudent(self, pth) -> None:
         if os.path.isfile(pth) and pth.split('.')[-1] == "xml":
@@ -204,7 +204,7 @@ class Cathedra:
                 c.addStudent(su)
 
         else:
-            print("Файла не существует или он не является .xml")
+            print("Р¤Р°Р№Р»Р° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РѕРЅ РЅРµ СЏРІР»СЏРµС‚СЃСЏ .xml")
 
     def parseOutXMLTutor(self, pth) -> None:
         if os.path.isfile(pth) and pth.split('.')[-1] == "xml":
@@ -218,7 +218,7 @@ class Cathedra:
                 tu.setPatronymic(elem[3].text)
                 c.addTutor(tu)
         else:
-            print("Файла не существует или он не является .xml")
+            print("Р¤Р°Р№Р»Р° РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РѕРЅ РЅРµ СЏРІР»СЏРµС‚СЃСЏ .xml")
 
     @property
     def studTutorMap(self):
@@ -226,18 +226,18 @@ class Cathedra:
 
 
 def Menu():
-    print("1 - Добавить студента")
-    print("2 - Добавить преподавателя")
-    print("3 - Записать данные в Json")
-    print("4 - Записать данные в XML")
-    print("5 - Считать данные из Json")
-    print("6 - Считать данные из XML")
-    print("7 - Вывести данные")
-    print("0 - Закончить программу")
+    print("1 - Р”РѕР±Р°РІРёС‚СЊ СЃС‚СѓРґРµРЅС‚Р°")
+    print("2 - Р”РѕР±Р°РІРёС‚СЊ РїСЂРµРїРѕРґР°РІР°С‚РµР»СЏ")
+    print("3 - Р—Р°РїРёСЃР°С‚СЊ РґР°РЅРЅС‹Рµ РІ Json")
+    print("4 - Р—Р°РїРёСЃР°С‚СЊ РґР°РЅРЅС‹Рµ РІ XML")
+    print("5 - РЎС‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РёР· Json")
+    print("6 - РЎС‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РёР· XML")
+    print("7 - Р’С‹РІРµСЃС‚Рё РґР°РЅРЅС‹Рµ")
+    print("0 - Р—Р°РєРѕРЅС‡РёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ")
 
 
 def validate_name(name: str) -> bool:
-    return bool(re.match(r'^[a-zA-Zа-яёА-ЯЁ]+$', name))
+    return bool(re.match(r'^[a-zA-ZР°-СЏС‘Рђ-РЇРЃ]+$', name))
 
 def validate_num(name: str) -> bool:
     return bool(re.match(r'^\d+$', name))
@@ -248,54 +248,54 @@ while n != '0':
     Menu()
     n = input()
     while n < '0' or n > '7':
-        print("Ошибка! Введите правильное число")
+        print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅРѕРµ С‡РёСЃР»Рѕ")
         n = input()
     if n == '1':
         s = Student()
         if len(c.getListTutor()) == 0:
-            print("Без преподавателя нельзя добавить студента")
+            print("Р‘РµР· РїСЂРµРїРѕРґР°РІР°С‚РµР»СЏ РЅРµР»СЊР·СЏ РґРѕР±Р°РІРёС‚СЊ СЃС‚СѓРґРµРЅС‚Р°")
             continue
-        print("Введите имя студента:")
+        print("Р’РІРµРґРёС‚Рµ РёРјСЏ СЃС‚СѓРґРµРЅС‚Р°:")
         stud_name = str(input())
 
         while validate_name(stud_name) == False:
-            print("Ошибка! Введите правильное имя")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅРѕРµ РёРјСЏ")
             stud_name = str(input())
             validate_name(stud_name)
 
         s.setName(stud_name)
 
-        print("Введите фамилию студента:")
+        print("Р’РІРµРґРёС‚Рµ С„Р°РјРёР»РёСЋ СЃС‚СѓРґРµРЅС‚Р°:")
         stud_surname = str(input())
 
         while validate_name(stud_surname) == False:
-            print("Ошибка! Введите правильную фамилию")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅСѓСЋ С„Р°РјРёР»РёСЋ")
             stud_surname = str(input())
             validate_name(stud_surname)
 
         s.setSurname(stud_surname)
 
 
-        print("Введите номер студента:")
+        print("Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ СЃС‚СѓРґРµРЅС‚Р°:")
         stud_id = str(input())
 
         while validate_num(stud_id) == False:
-            print("Ошибка! Введите правильный номер")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅС‹Р№ РЅРѕРјРµСЂ")
             stud_id = str(input())
             validate_num(stud_id)
 
         students = c.getListStudent()
         for student in students:
             while student[-1] == int(stud_id):
-                print("ID повторяюся. Введите заново:")
+                print("ID РїРѕРІС‚РѕСЂСЏСЋСЃСЏ. Р’РІРµРґРёС‚Рµ Р·Р°РЅРѕРІРѕ:")
                 stud_id = str(input())
                 while validate_num(stud_id) == False:
-                    print("Ошибка! Введите правильный номер")
+                    print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅС‹Р№ РЅРѕРјРµСЂ")
                     stud_id = str(input())
                     validate_num(stud_id)
 
-        print("К каком преподавателю добавить?")
-        print("Список:")
+        print("Рљ РєР°РєРѕРј РїСЂРµРїРѕРґР°РІР°С‚РµР»СЋ РґРѕР±Р°РІРёС‚СЊ?")
+        print("РЎРїРёСЃРѕРє:")
         prepods = c.getListTutor()
         for prepod in prepods:
             print(prepod[-1])
@@ -310,7 +310,7 @@ while n != '0':
                     flag = False
                     break
             if flag:
-                print("Такого преподавателя нет")
+                print("РўР°РєРѕРіРѕ РїСЂРµРїРѕРґР°РІР°С‚РµР»СЏ РЅРµС‚")
 
         print(c.studTutorMap)
         c.addStudent(s)
@@ -318,51 +318,51 @@ while n != '0':
     elif n == '2':
         t = Tutor()
 
-        print("Введите имя преподавателя:")
+        print("Р’РІРµРґРёС‚Рµ РёРјСЏ РїСЂРµРїРѕРґР°РІР°С‚РµР»СЏ:")
         tutor_name = str(input())
 
         while validate_name(tutor_name) == False:
-            print("Ошибка! Введите правильное имя")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅРѕРµ РёРјСЏ")
             tutor_name = str(input())
             validate_name(tutor_name)
 
         t.setName(tutor_name)
 
-        print("Введите фамилию преподавателя:")
+        print("Р’РІРµРґРёС‚Рµ С„Р°РјРёР»РёСЋ РїСЂРµРїРѕРґР°РІР°С‚РµР»СЏ:")
         tutor_surname = str(input())
 
         while validate_name(tutor_surname) == False:
-            print("Ошибка! Введите правильную фамилию")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅСѓСЋ С„Р°РјРёР»РёСЋ")
             tutor_surname = str(input())
             validate_name(tutor_surname)
 
         t.setSurname(tutor_surname)
 
-        print("Введите отчество преподавателя:")
+        print("Р’РІРµРґРёС‚Рµ РѕС‚С‡РµСЃС‚РІРѕ РїСЂРµРїРѕРґР°РІР°С‚РµР»СЏ:")
         tutor_patronymic = str(input())
 
         while validate_name(tutor_patronymic) == False:
-            print("Ошибка! Введите правильное отчество")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅРѕРµ РѕС‚С‡РµСЃС‚РІРѕ")
             tutor_patronymic = str(input())
             validate_name(tutor_patronymic)
 
         t.setPatronymic(tutor_patronymic)
 
-        print("Введите номер преподавателя:")
+        print("Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ РїСЂРµРїРѕРґР°РІР°С‚РµР»СЏ:")
         tutor_id = str(input())
 
         while validate_num(tutor_id) == False:
-            print("Ошибка! Введите правильный номер")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅС‹Р№ РЅРѕРјРµСЂ")
             tutor_id = str(input())
             validate_num(tutor_id)
 
         tutors = c.getListTutor()
         for tutor in tutors:
             while tutor[-1] == int(tutor_id):
-                print("ID повторяюся. Введите заново:")
+                print("ID РїРѕРІС‚РѕСЂСЏСЋСЃСЏ. Р’РІРµРґРёС‚Рµ Р·Р°РЅРѕРІРѕ:")
                 tutor_id = str(input())
                 while validate_num(tutor_id) == False:
-                    print("Ошибка! Введите правильный номер")
+                    print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅС‹Р№ РЅРѕРјРµСЂ")
                     tutor_id = str(input())
                     validate_num(tutor_id)
 
@@ -377,14 +377,14 @@ while n != '0':
         c.parseInXMLTutor()
 
     elif n == '5':
-        print("1 - Считать данные из Json для Студентов")
-        print("2 - Считать данные из Json для Преподавателей")
+        print("1 - РЎС‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РёР· Json РґР»СЏ РЎС‚СѓРґРµРЅС‚РѕРІ")
+        print("2 - РЎС‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РёР· Json РґР»СЏ РџСЂРµРїРѕРґР°РІР°С‚РµР»РµР№")
         choise_json_out = str(input())
         while choise_json_out < '0' or choise_json_out > '2':
-            print("Ошибка! Введите правильное число")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅРѕРµ С‡РёСЃР»Рѕ")
             choise_json_out = str(input())
 
-        print("Введите имя файла:")
+        print("Р’РІРµРґРёС‚Рµ РёРјСЏ С„Р°Р№Р»Р°:")
         pth = str(input())
 
         if choise_json_out == '1':
@@ -395,14 +395,14 @@ while n != '0':
 
     elif n == '6':
 
-        print("1 - Считать данные из XML для Студентов")
-        print("2 - Считать данные из XML для Преподавателей")
+        print("1 - РЎС‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РёР· XML РґР»СЏ РЎС‚СѓРґРµРЅС‚РѕРІ")
+        print("2 - РЎС‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РёР· XML РґР»СЏ РџСЂРµРїРѕРґР°РІР°С‚РµР»РµР№")
         choise_xml_out = str(input())
         while choise_xml_out < '0' or choise_xml_out > '2':
-            print("Ошибка! Введите правильное число")
+            print("РћС€РёР±РєР°! Р’РІРµРґРёС‚Рµ РїСЂР°РІРёР»СЊРЅРѕРµ С‡РёСЃР»Рѕ")
             choise_xml_out = str(input())
 
-        print("Введите имя файла:")
+        print("Р’РІРµРґРёС‚Рµ РёРјСЏ С„Р°Р№Р»Р°:")
         pth = str(input())
 
         if choise_xml_out == '1':
@@ -412,5 +412,5 @@ while n != '0':
 
 
     elif n == '7':
-        print('Студенты: ',*c.getListStudent())
-        print('Преподаватели: ',*c.getListTutor())
+        print('РЎС‚СѓРґРµРЅС‚С‹: ',*c.getListStudent())
+        print('РџСЂРµРїРѕРґР°РІР°С‚РµР»Рё: ',*c.getListTutor())
