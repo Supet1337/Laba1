@@ -83,6 +83,23 @@ class Cathedra:
         else:
             print("Не тот класс")
 
+    def gettutorbyID(self, id):
+        for tutor in self._tutorList:
+            if int(tutor.getID()) == int(id):
+                return tutor
+
+    def getstudentbyID(self, id):
+        for student in self._studentList:
+            if int(student.getID()) == int(id):
+                return student
+
+    def getstudentsbyID(self, id):
+        # for student in self._studTutorMap:
+        #     if int(student.getID()) == int(id):
+        #         return student
+        students = self._studTutorMap.get(id)
+        return students
+
     def getListStudent(self):
         listX = []
         for i in self._studentList:
@@ -108,7 +125,6 @@ class Cathedra:
             with open('students.json', 'w', encoding='UTF-8') as f:
                 json.dump(jsn, f, indent=4)
 
-
     def parseInJSONTutor(self) -> None:
         jsn = []
         for tutor in self._tutorList:
@@ -122,6 +138,40 @@ class Cathedra:
 
             with open('tutors.json', 'w', encoding='UTF-8') as f:
                 json.dump(jsn, f, indent=4)
+
+
+    def parseInJSONAll(self) -> None:
+        jsn = []
+        for key in self._studTutorMap:
+            jsn.append({
+                "TutorID": key,
+                "FIO Tutor": self.gettutorbyID(key).getName() + " " + self.gettutorbyID(key).getSurname() + " " + self.gettutorbyID(key).getPatronymic(),
+                "Data Students": [str(self.getstudentbyID(i).getID()) + " " + self.getstudentbyID(i).getName() + " " + self.getstudentbyID(i).getSurname()  for i in self.getstudentsbyID(key)],
+            })
+
+            with open('all.json', 'w', encoding='UTF-8') as f:
+                json.dump(jsn, f, indent=4)
+
+    def parseInXMLAll(self) -> None:
+        data = ET.Element('Cathedra')
+        for key in self._studTutorMap:
+            tutor = ET.SubElement(data, 'Tutor')
+            tutor.set('ID', key)
+            tutor.set('Name', self.gettutorbyID(key).getName())
+            tutor.set('Surname',  self.gettutorbyID(key).getSurname())
+            tutor.set('Patronymic', self.gettutorbyID(key).getPatronymic())
+            students = ET.SubElement(tutor, 'Students')
+
+            for i in self.getstudentsbyID(key):
+                student = ET.SubElement(students, 'StudentsData')
+                student.set('ID', str(self.getstudentbyID(i).getID()))
+                student.set('Name', self.getstudentbyID(i).getName())
+                student.set('Surname',self.getstudentbyID(i).getSurname())
+
+        mydata = minidom.parseString(ET.tostring(data, encoding='utf-8', method='xml')).toprettyxml(indent="   ")
+
+        with open("all.xml", "wb") as f:
+            f.write(mydata.encode('utf-8'))
 
     def parseInXMLStudent(self) -> None:
         data = ET.Element('Students')
@@ -233,6 +283,8 @@ def Menu():
     print("5 - Считать данные из Json")
     print("6 - Считать данные из XML")
     print("7 - Вывести данные")
+    print("8 - Вывести данные JSON")
+    print("9 - Вывести данные XML")
     print("0 - Закончить программу")
 
 
@@ -247,7 +299,7 @@ c = Cathedra()
 while n != '0':
     Menu()
     n = input()
-    while n < '0' or n > '7':
+    while n < '0' or n > '9':
         print("Ошибка! Введите правильное число")
         n = input()
     if n == '1':
@@ -414,3 +466,9 @@ while n != '0':
     elif n == '7':
         print('Студенты: ',*c.getListStudent())
         print('Преподаватели: ',*c.getListTutor())
+
+    elif n == '8':
+        c.parseInJSONAll()
+
+    elif n == '9':
+        c.parseInXMLAll()
