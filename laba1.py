@@ -1,3 +1,5 @@
+# -*- coding: cp1251 -*-
+
 import json
 import os
 import re
@@ -10,13 +12,16 @@ class Student:
     _surname = ''
     _studentID = 0
 
+    def name(self):
+        return "student"
+
     def setName(self, name):
         self._name = name
 
     def setSurname(self, surname):
         self._surname = surname
 
-    def setID(self, id):
+    def setID(self, id : int):
         self._studentID = id
 
     def getName(self):
@@ -34,6 +39,9 @@ class Tutor:
     _patronymic = ''
     _tutorID = 0
 
+    def name (self):
+        return "tutor"
+
     def setName(self, name):
         self._name = name
 
@@ -44,7 +52,7 @@ class Tutor:
         self._patronymic = patronymic
 
     def setID(self, id):
-        self._studentID = id
+        self._tutorID = id
 
     def getName(self):
         return self._name
@@ -56,17 +64,38 @@ class Tutor:
         return self._patronymic
 
     def getID(self):
-        return self._studentID
+        return self._tutorID
 
 class Cathedra:
     _studentList = []
     _tutorList = []
+    _studTutorMap = {}
 
     def addStudent(self, student):
-        self._studentList.append(student)
+        if student.name() == "student":
+            self._studentList.append(student)
+        else:
+            print("Не тот класс")
 
     def addTutor(self, tutor):
-        self._tutorList.append(tutor)
+        if tutor.name() == "tutor":
+            self._tutorList.append(tutor)
+        else:
+            print("Не тот класс")
+
+    def gettutorbyID(self, id):
+        for tutor in self._tutorList:
+            if int(tutor.getID()) == int(id):
+                return tutor
+
+    def getstudentbyID(self, id):
+        for student in self._studentList:
+            if int(student.getID()) == int(id):
+                return student
+
+    def getstudentsbyID(self, id):
+        students = self._studTutorMap.get(id)
+        return students
 
     def getListStudent(self):
         listX = []
@@ -89,10 +118,11 @@ class Cathedra:
                 "name": student.getName(),
                 "surname": student.getSurname()
             })
-
-            with open('students.json', 'w', encoding='UTF-8') as f:
-                json.dump(jsn, f, indent=4)
-
+            try:
+                with open('students.json', 'w', encoding='UTF-8') as f:
+                    json.dump(jsn, f, indent=4)
+            except Exception:
+                print("Ошибка записи в файл")
 
     def parseInJSONTutor(self) -> None:
         jsn = []
@@ -104,9 +134,103 @@ class Cathedra:
                 "surname": tutor.getSurname(),
                 "patronymic": tutor.getPatronymic()
             })
+            try:
+                with open('tutors.json', 'w', encoding='UTF-8') as f:
+                    json.dump(jsn, f, indent=4)
+            except Exception:
+                print("Ошибка записи в файл")
 
-            with open('tutors.json', 'w', encoding='UTF-8') as f:
-                json.dump(jsn, f, indent=4)
+
+    def parseInJSONAll(self) -> None:
+        jsn = []
+        for key in self._studTutorMap:
+            jsn.append({
+                "TutorID": int(key),
+                #"FIO Tutor": self.gettutorbyID(key).getName() + " " + self.gettutorbyID(key).getSurname() + " " + self.gettutorbyID(key).getPatronymic(),
+                "Data Students": [int(self.getstudentbyID(i).getID()) for i in self.getstudentsbyID(key)],
+            })
+            try:
+                with open('all.json', 'w', encoding='UTF-8') as f:
+                    json.dump(jsn, f, indent=4)
+            except Exception:
+                print("Ошибка записи в файл")
+
+    def parseOutJsonStudent(self) -> None:
+        try:
+            with open("students.json") as f:
+                dict = json.load(f)
+                for i in range(len(dict)):
+                    su = Student()
+                    su.setName(dict[i]['name'])
+                    su.setSurname(dict[i]['surname'])
+                    su.setID(dict[i]['ID'])
+                    c.addStudent(su)
+        except Exception:
+            print("Ошибка открытия файла")
+
+
+    def parseOutJSONAll(self, pth) -> None:
+        try:
+            self.parseOutJsonStudent()
+            self.parseOutJsonTutor()
+            with open(pth) as f:
+                dict = json.load(f)
+                for i in range(len(dict)):
+                    idt = dict[i]['TutorID']
+                    ids = dict[i]['Data Students']
+
+                    tu = self.gettutorbyID(idt)
+                    print("Преподаватель: ",tu.getName(), tu.getSurname(), tu.getPatronymic())
+
+                    for id in ids:
+                        su = self.getstudentbyID(id)
+                        print("Студент: ",su.getName(), su.getSurname())
+                        c.studTutorMap.setdefault(str(idt), []).append(str(id))
+                    print('')
+
+        except Exception:
+            print("Файла не существует или он не является .json")
+
+    def parseInXMLAll(self) -> None:
+        data = ET.Element('Cathedra')
+        for key in self._studTutorMap:
+
+            tutor = ET.SubElement(data, 'Tutor')
+            tutor.set('ID', key)
+            students = ET.SubElement(tutor, 'Students')
+
+            for i in self.getstudentsbyID(key):
+                student = ET.SubElement(students, 'StudentsData')
+                student.set('ID', str(self.getstudentbyID(i).getID()))
+
+        mydata = minidom.parseString(ET.tostring(data, encoding='utf-8', method='xml')).toprettyxml(indent="   ")
+
+        try:
+            with open("all.xml", "wb") as f:
+                f.write(mydata.encode('utf-8'))
+        except Exception:
+            print("Ошибка записи в файл")
+
+    def parseOutXMLAll(self, pth) -> None:
+        try:
+            tree = ET.parse(pth)
+            root = tree.getroot()
+            self.parseOutXMLStudent()
+            self.parseOutXMLTutor()
+            for elem in root:
+                idt = elem.attrib['ID']
+                ids = elem[0][0].attrib['ID']
+                tu = self.gettutorbyID(idt)
+                print("Преподаватель: ", tu.getName(), tu.getSurname(), tu.getPatronymic())
+
+                for id in ids:
+                    su = self.getstudentbyID(id)
+                    print("Студент: ", su.getName(), su.getSurname())
+                    c.studTutorMap.setdefault(str(idt), []).append(str(id))
+                print('')
+        except Exception:
+            print("Файла не существует или он не является .xml")
+
 
     def parseInXMLStudent(self) -> None:
         data = ET.Element('Students')
@@ -122,10 +246,11 @@ class Cathedra:
             id.text = str(student.getID())
 
         mydata = minidom.parseString(ET.tostring(data)).toprettyxml(indent="   ")
-
-        with open("students.xml",  "wb") as f:
-            f.write(mydata.encode('utf-8'))
-
+        try:
+            with open("students.xml",  "wb") as f:
+                f.write(mydata.encode('utf-8'))
+        except Exception:
+            print("Ошибка записи в файл")
 
     def parseInXMLTutor(self) -> None:
         data = ET.Element('Tutors')
@@ -144,28 +269,15 @@ class Cathedra:
 
         mydata = minidom.parseString(ET.tostring(data)).toprettyxml(indent="   ")
 
-        with open("tutors.xml",  "wb") as f:
-            f.write(mydata.encode('utf-8'))
+        try:
+            with open("tutors.xml",  "wb") as f:
+                f.write(mydata.encode('utf-8'))
+        except Exception:
+            print("Ошибка записи в файл")
 
-    def parseOutJsonStudent(self, pth) -> None:
-        if os.path.isfile(pth) and pth.split('.')[-1] == "json":
-            with open(pth) as f:
-                dict = json.load(f)
-                for i in range(len(dict)):
-                    su = Student()
-                    su.setName(dict[i]['name'])
-                    su.setSurname(dict[i]['surname'])
-                    su.setID(dict[i]['ID'])
-                    c.addStudent(su)
-
-
-        else:
-            print("Файла не существует или он не является .json")
-
-
-    def parseOutJsonTutor(self, pth) -> None:
-        if os.path.isfile(pth) and pth.split('.')[-1] == "json":
-            with open(pth) as f:
+    def parseOutJsonTutor(self) -> None:
+        try:
+            with open("tutors.json") as f:
                 dict = json.load(f)
                 for i in range(len(dict)):
                     tu = Tutor()
@@ -174,12 +286,12 @@ class Cathedra:
                     tu.setPatronymic(dict[i]['patronymic'])
                     tu.setID(dict[i]['ID'])
                     c.addTutor(tu)
-        else:
+        except:
             print("Файла не существует или он не является .json")
 
-    def parseOutXMLStudent(self, pth) -> None:
-        if os.path.isfile(pth) and pth.split('.')[-1] == "xml":
-            tree = ET.parse(pth)
+    def parseOutXMLStudent(self) -> None:
+        try:
+            tree = ET.parse("students.xml")
             root = tree.getroot()
             for elem in root:
                 su = Student()
@@ -187,13 +299,12 @@ class Cathedra:
                 su.setName(elem[1].text)
                 su.setSurname(elem[2].text)
                 c.addStudent(su)
-
-        else:
+        except:
             print("Файла не существует или он не является .xml")
 
-    def parseOutXMLTutor(self, pth) -> None:
-        if os.path.isfile(pth) and pth.split('.')[-1] == "xml":
-            tree = ET.parse(pth)
+    def parseOutXMLTutor(self) -> None:
+        try:
+            tree = ET.parse("tutors.xml")
             root = tree.getroot()
             for elem in root:
                 tu = Tutor()
@@ -202,17 +313,26 @@ class Cathedra:
                 tu.setSurname(elem[2].text)
                 tu.setPatronymic(elem[3].text)
                 c.addTutor(tu)
-        else:
+        except:
             print("Файла не существует или он не является .xml")
+
+    @property
+    def studTutorMap(self):
+        return self._studTutorMap
+
 
 def Menu():
     print("1 - Добавить студента")
     print("2 - Добавить преподавателя")
-    print("3 - Записать данные в Json")
-    print("4 - Записать данные в XML")
-    print("5 - Считать данные из Json")
-    print("6 - Считать данные из XML")
+    print("3 - Записать данные студентов и преподавателей в Json")
+    print("4 - Записать данные студентов и преподавателей в XML")
+    # print("5 - Считать данные из Json")
+    # print("6 - Считать данные из XML")
     print("7 - Вывести данные")
+    print("8 - Записать данные СВЯЗИ студентов и преподавателей в JSON")
+    print("9 - Записать данные СВЯЗИ студентов и преподавателей в XML")
+    print("10 - Считать все данные из JSON")
+    print("11 - Считать все данные из XML")
     print("0 - Закончить программу")
 
 
@@ -220,19 +340,21 @@ def validate_name(name: str) -> bool:
     return bool(re.match(r'^[a-zA-Zа-яёА-ЯЁ]+$', name))
 
 def validate_num(name: str) -> bool:
-    return bool(re.match(r'\d', name))
+    return bool(re.match(r'^\d+$', name))
 
 n = -1
 c = Cathedra()
 while n != '0':
     Menu()
     n = input()
-    while n < '0' or n > '7':
+    while n < '0' or n > '9':
         print("Ошибка! Введите правильное число")
         n = input()
     if n == '1':
         s = Student()
-
+        if len(c.getListTutor()) == 0:
+            print("Без преподавателя нельзя добавить студента")
+            continue
         print("Введите имя студента:")
         stud_name = str(input())
 
@@ -262,8 +384,35 @@ while n != '0':
             stud_id = str(input())
             validate_num(stud_id)
 
-        s.setID(int(stud_id))
+        students = c.getListStudent()
+        for student in students:
+            while student[-1] == int(stud_id):
+                print("ID повторяюся. Введите заново:")
+                stud_id = str(input())
+                while validate_num(stud_id) == False:
+                    print("Ошибка! Введите правильный номер")
+                    stud_id = str(input())
+                    validate_num(stud_id)
 
+        print("К каком преподавателю добавить?")
+        print("Список:")
+        prepods = c.getListTutor()
+        for prepod in prepods:
+            print(prepod[-1])
+
+        flag = True
+        s.setID(int(stud_id))
+        while flag:
+            prepodID = str(input())
+            for prepod in prepods:
+                if int(prepodID) == prepod[-1]:
+                    c.studTutorMap.setdefault(prepodID, []).append(stud_id)
+                    flag = False
+                    break
+            if flag:
+                print("Такого преподавателя нет")
+
+        print(c.studTutorMap)
         c.addStudent(s)
 
     elif n == '2':
@@ -307,6 +456,16 @@ while n != '0':
             tutor_id = str(input())
             validate_num(tutor_id)
 
+        tutors = c.getListTutor()
+        for tutor in tutors:
+            while tutor[-1] == int(tutor_id):
+                print("ID повторяюся. Введите заново:")
+                tutor_id = str(input())
+                while validate_num(tutor_id) == False:
+                    print("Ошибка! Введите правильный номер")
+                    tutor_id = str(input())
+                    validate_num(tutor_id)
+
         t.setID(int(tutor_id))
         c.addTutor(t)
 
@@ -317,41 +476,56 @@ while n != '0':
         c.parseInXMLStudent()
         c.parseInXMLTutor()
 
-    elif n == '5':
-        print("1 - Считать данные из Json для Студентов")
-        print("2 - Считать данные из Json для Преподавателей")
-        choise_json_out = str(input())
-        while choise_json_out < '0' or choise_json_out > '2':
-            print("Ошибка! Введите правильное число")
-            choise_json_out = str(input())
-
-        print("Введите имя файла:")
-        pth = str(input())
-
-        if choise_json_out == '1':
-            c.parseOutJsonStudent(pth)
-        elif choise_json_out == '2':
-            c.parseOutJsonTutor(pth)
-
-
-    elif n == '6':
-
-        print("1 - Считать данные из XML для Студентов")
-        print("2 - Считать данные из XML для Преподавателей")
-        choise_xml_out = str(input())
-        while choise_xml_out < '0' or choise_xml_out > '2':
-            print("Ошибка! Введите правильное число")
-            choise_xml_out = str(input())
-
-        print("Введите имя файла:")
-        pth = str(input())
-
-        if choise_xml_out == '1':
-            c.parseOutXMLStudent(pth)
-        elif choise_xml_out == '2':
-            c.parseOutXMLTutor(pth)
+    # elif n == '5':
+    #     print("1 - Считать данные из Json для Студентов")
+    #     print("2 - Считать данные из Json для Преподавателей")
+    #     choise_json_out = str(input())
+    #     while choise_json_out < '0' or choise_json_out > '2':
+    #         print("Ошибка! Введите правильное число")
+    #         choise_json_out = str(input())
+    #
+    #     print("Введите имя файла:")
+    #     pth = str(input())
+    #
+    #     if choise_json_out == '1':
+    #         c.parseOutJsonStudent(pth)
+    #     elif choise_json_out == '2':
+    #         c.parseOutJsonTutor(pth)
+    #
+    #
+    # elif n == '6':
+    #
+    #     print("1 - Считать данные из XML для Студентов")
+    #     print("2 - Считать данные из XML для Преподавателей")
+    #     choise_xml_out = str(input())
+    #     while choise_xml_out < '0' or choise_xml_out > '2':
+    #         print("Ошибка! Введите правильное число")
+    #         choise_xml_out = str(input())
+    #
+    #     print("Введите имя файла:")
+    #     pth = str(input())
+    #
+    #     if choise_xml_out == '1':
+    #         c.parseOutXMLStudent(pth)
+    #     elif choise_xml_out == '2':
+    #         c.parseOutXMLTutor(pth)
 
 
     elif n == '7':
         print('Студенты: ',*c.getListStudent())
         print('Преподаватели: ',*c.getListTutor())
+
+    elif n == '8':
+        c.parseInJSONAll()
+
+    elif n == '9':
+        c.parseInXMLAll()
+
+    elif n == '10':
+        print("Введите имя файла для считывания: ")
+        pth = str(input())
+        c.parseOutJSONAll(pth)
+    elif n == '11':
+        print("Введите имя файла для считывания: ")
+        pth = str(input())
+        c.parseOutXMLAll(pth)
